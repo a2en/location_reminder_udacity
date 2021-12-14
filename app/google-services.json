@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "124098141802",
+    "project_id": "location-remider",
+    "storage_bucket": "location-remider.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124098141802:android:14451d1c95fed6e31d7413",
+        "android_client_info": {
+          "package_name": "com.udacity.project4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124098141802-njmas9no7slv5me1rat7ubrpteoef23d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAClAEOF3gPtLlNZKswr6AYve24vLMChV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124098141802-njmas9no7slv5me1rat7ubrpteoef23d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
