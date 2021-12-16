@@ -34,33 +34,36 @@ class RemindersLocalRepositoryTest {
 
     private lateinit var application: Application
     private lateinit var remindersDatabase: RemindersDatabase
+    private lateinit var remindersLocalRepository: RemindersLocalRepository
 
     @Before
-    fun setupDatabase() {
+    fun setup() {
         application = ApplicationProvider.getApplicationContext()
         remindersDatabase = Room.inMemoryDatabaseBuilder(application, RemindersDatabase::class.java)
             .allowMainThreadQueries().build()
+
+        remindersLocalRepository = RemindersLocalRepository(remindersDatabase.reminderDao(), Dispatchers.Main)
     }
 
     @Test
     fun insertEqualsRetrieve() = runBlocking {
         val reminder = ReminderDTO("Title", "Description", "Location", 0.0, 0.0)
 
-        remindersDatabase.reminderDao().saveReminder(reminder)
-        val reminder2: ReminderDTO? = remindersDatabase.reminderDao().getReminderById(reminder.id)
+        remindersLocalRepository.saveReminder(reminder)
+        val reminder2: Result.Success<ReminderDTO> = remindersLocalRepository.getReminder(reminder.id) as Result.Success
 
-        MatcherAssert.assertThat(reminder2, `is`(reminder))
+        MatcherAssert.assertThat(reminder2.data, `is`(reminder))
     }
 
     @Test
-    fun noReminderForDeleted() = runBlocking {
+    fun dataNotFound() = runBlocking {
         val reminder = ReminderDTO("Title", "Description", "Location", 0.0, 0.0)
         val id = reminder.id
-        remindersDatabase.reminderDao().saveReminder(reminder)
-        remindersDatabase.reminderDao().deleteAllReminders()
+        remindersLocalRepository.saveReminder(reminder)
+        remindersLocalRepository.deleteAllReminders()
 
-        val result = remindersDatabase.reminderDao().getReminderById(id)
+        val result = remindersLocalRepository.getReminder(id) as Result.Error
 
-        MatcherAssert.assertThat(result, `is`(CoreMatchers.nullValue()))
+        MatcherAssert.assertThat(result.message, `is`("Reminder not found!"))
     }
 }

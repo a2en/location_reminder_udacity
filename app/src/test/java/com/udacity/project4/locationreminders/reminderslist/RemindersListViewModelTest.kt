@@ -95,6 +95,11 @@ class RemindersListViewModelTest {
             reminderListViewModel.showLoading.getOrAwaitValue(),
             `is`(true)
         )
+        mainCoroutineRule.resumeDispatcher()
+        assertThat(
+            reminderListViewModel.showLoading.getOrAwaitValue(),
+            `is`(false)
+        )
     }
 
     @Test
