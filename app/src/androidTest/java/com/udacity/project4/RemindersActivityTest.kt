@@ -64,18 +64,15 @@ class RemindersActivityTest :
     @get:Rule
     var permissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION,android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
 
-    @get: Rule
-    var activityScenarioRule = activityScenarioRule<RemindersActivity>()
 
-    private var decorView: View? = null
-
-    @Before
-    fun setUp(){
-        activityScenarioRule.scenario.onActivity {
-            decorView = it.window.decorView
+    // get activity context
+    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+        var activity: Activity? = null
+        activityScenario.onActivity {
+            activity = it
         }
+        return activity
     }
-
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -138,6 +135,7 @@ class RemindersActivityTest :
 
         val activityScenario = launchActivity<RemindersActivity>()
         dataBindingIdlingResource.monitorActivity(activityScenario)
+        val activity = getActivity(activityScenario)
 
         Espresso.onView(ViewMatchers.withId(R.id.addReminderFAB)).perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withId(R.id.reminderTitle))
@@ -161,21 +159,19 @@ class RemindersActivityTest :
 
         Espresso.onView(withId(R.id.pick_location)).perform(ViewActions.click())
 
-
+        Thread.sleep(2000);
 
 
         Espresso.onView(ViewMatchers.withId(R.id.saveReminder)).perform(ViewActions.click())
-
-
         Espresso.onView(ViewMatchers.withText("t1"))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(ViewMatchers.withText("d1"))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
-
-        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(decorView))
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(`is`(activity?.window?.decorView)))
         ).check(ViewAssertions.matches(isDisplayed()))
 
+        activityScenario.close()
     }
 
 

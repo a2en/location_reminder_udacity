@@ -52,7 +52,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     fun validateAndSaveReminder(reminderData: ReminderDataItem) {
         if (validateEnteredData(reminderData)) {
             saveReminder(reminderData)
-            _navigateToReminderListFragment.value = true
         }
     }
 
@@ -74,7 +73,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             )
             showLoading.value = false
             showToast.value = app.getString(R.string.reminder_saved)
-//            navigationCommand.value = NavigationCommand.Back
+            _navigateToReminderListFragment.value = true
         }
     }
 
