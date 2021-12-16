@@ -30,6 +30,7 @@ import org.koin.android.ext.android.inject
 import android.location.Geocoder
 import android.location.Location
 import android.os.Handler
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.gms.common.internal.Constants
 import java.io.IOException
 import java.util.*
@@ -49,6 +50,17 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private var pointOfInterest : PointOfInterest? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private  val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                enableMyLocation()
+            } else {
+                Toast.makeText(requireContext(),"Location permission is needed for this app to work",Toast.LENGTH_LONG).show()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -163,10 +175,13 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         try {
             val addresses: List<Address> = geocoder.getFromLocation(lat, lng, 1)
             val obj: Address = addresses[0]
-            return obj.locality
+            return if(obj.locality!=null)
+                obj.locality
+            else
+                getString(R.string.dropped_pin)
         } catch (e: IOException) {
             e.printStackTrace()
-            return "unknown place";
+            return getString(R.string.dropped_pin)
         }
     }
     private fun setMapStyle() {
@@ -195,18 +210,6 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray) {
-        // Check if location permissions are granted and if so enable the
-        // location data layer.
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                enableMyLocation()
-            }
-        }
-    }
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
@@ -228,11 +231,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                     }
                 }
         } else {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 

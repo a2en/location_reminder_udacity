@@ -8,6 +8,7 @@ import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
@@ -57,6 +58,19 @@ class RemindersListViewModelTest {
     }
 
     @Test
+    fun check_load_reminders_when_error() = runBlockingTest {
+        fakeDataSource = FakeDataSource(null)
+        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(),
+            fakeDataSource)
+
+        fakeDataSource.setShouldReturnError(true)
+        reminderListViewModel.loadReminders()
+        assertThat(reminderListViewModel.showSnackBar.getOrAwaitValue(), `is`("No reminders to return"))
+
+    }
+
+
+    @Test
     fun check_list_reminders() {
         val remindersList = mutableListOf(reminderList[0],reminderList[1])
         fakeDataSource = FakeDataSource(remindersList)
@@ -81,6 +95,15 @@ class RemindersListViewModelTest {
             reminderListViewModel.showLoading.getOrAwaitValue(),
             `is`(true)
         )
+    }
+
+    @Test
+    fun returnError() {
+        fakeDataSource = FakeDataSource(null)
+        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(),
+            fakeDataSource)
+        reminderListViewModel.loadReminders()
+        assertThat(reminderListViewModel.showSnackBar.getOrAwaitValue(), `is`("No reminders to return"))
     }
 
 }
