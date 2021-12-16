@@ -47,6 +47,7 @@ import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.matcher.RootMatchers
+import com.udacity.project4.utils.EspressoIdlingResource
 
 
 @RunWith(AndroidJUnit4::class)
@@ -113,14 +114,17 @@ class RemindersActivityTest :
     fun stop() {
         stopKoin()
     }
+
     @Before
     fun registerIdlingResource() {
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
     }
 
     @After
     fun unregisterIdlingResource() {
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
     }
 
     // Toast added to end to end test
@@ -162,6 +166,7 @@ class RemindersActivityTest :
         Espresso.onView(ViewMatchers.withText("d1"))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
+        // I used the solution provided in previous review to test toast. but this is hanging the test
         onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(`is`(activity?.window?.decorView)))
         ).check(ViewAssertions.matches(isDisplayed()))
 
